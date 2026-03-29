@@ -198,7 +198,6 @@ function Scene({ imgSrc, text, textTop, textBottom, shake, blobPath, blobColor }
           width="300"
           height="300"
           viewBox="-150 -150 300 300"
-          overflow="visible"
           style={{
             position: "absolute",
             top: "50%",
@@ -262,7 +261,7 @@ function launchConfetti() {
 
 type Answer = "sim" | "nao" | null;
 
-function ResponseSection({ answer }: { answer: Answer }) {
+function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => void }) {
   const [texts, setTexts] = useState<string[]>([]);
   const [showClose, setShowClose] = useState(false);
   const [animClass, setAnimClass] = useState("");
@@ -342,9 +341,12 @@ function ResponseSection({ answer }: { answer: Answer }) {
         <button
           className="btn btn-outline fade-in-text"
           style={{ marginTop: 32 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => {
+            onReset();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         >
-          Fechar
+          Fechar 👋
         </button>
       )}
     </div>
@@ -477,6 +479,11 @@ export default function App() {
     }, 100);
   }
 
+  function handleReset() {
+    setSubmitted(false);
+    setAnswer(null);
+  }
+
   return (
     <>
       <DecorativeElements />
@@ -541,7 +548,7 @@ export default function App() {
           <RSVPSection onSubmit={handleSubmit} />
         ) : (
           <div id="response-section">
-            <ResponseSection answer={answer} />
+            <ResponseSection answer={answer} onReset={handleReset} />
           </div>
         )}
       </div>
