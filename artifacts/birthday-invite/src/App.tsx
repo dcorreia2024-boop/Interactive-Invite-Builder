@@ -110,18 +110,18 @@ function ResponseSection({ answer }: { answer: Answer }) {
   const [showClose, setShowClose] = useState(false);
 
   const simTexts = [
-    "SABIA QUE VOCÊ NÃO RESISTIA 🎉",
+    "SABIA QUE VOCÊ NÃO RESISTIA",
     "Te espero dia 09/05/2026!",
-    "⏰ Horário: 16h",
-    "📍 Endereço: [SEU ENDEREÇO]",
-    "Chega na hora tá? 😂",
+    "Horário: 16h",
+    "Endereço: [SEU ENDEREÇO]",
+    "Chega na hora tá?",
   ];
 
   const naoTexts = [
     "Não vem né...",
-    "Bom que sobra mais pra mim 😏",
+    "Bom que sobra mais pra mim",
     "Mas o presente tu pode mandar ainda",
-    "Tu sabe né? 🎁",
+    "Tu sabe né?",
   ];
 
   const allTexts = answer === "sim" ? simTexts : naoTexts;
@@ -174,7 +174,7 @@ function ResponseSection({ answer }: { answer: Answer }) {
           style={{ marginTop: 32 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          Fechar 👋
+          Fechar
         </button>
       )}
     </div>
@@ -192,7 +192,7 @@ function RSVPSection({
 
   async function handleClick(answer: "sim" | "nao") {
     if (!name.trim()) {
-      setError("Ei, esqueceu seu nome! 😅");
+      setError("Ei, esqueceu seu nome!");
       return;
     }
     setError("");
@@ -239,7 +239,7 @@ function RSVPSection({
           borderRadius: 12,
           padding: "14px 20px",
           fontSize: "1.2rem",
-          fontFamily: "Boogaloo, sans-serif",
+          fontFamily: "'Chango', cursive",
           width: "100%",
           maxWidth: 360,
           marginBottom: 8,
@@ -288,17 +288,17 @@ export default function App() {
         background: "#ffffff",
         maxWidth: 600,
         margin: "0 auto",
-        fontFamily: "Boogaloo, sans-serif",
+        fontFamily: "'Chango', cursive",
       }}
     >
-      <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre 👀" />
+      <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre" />
       <Scene
         imgSrc={img("ta_chegando.png")}
         text="Tá chegando o melhor dia do ano pra você..."
       />
       <Scene
         imgSrc={img("presentear.png")}
-        text="O dia de me presentear. Bom né? 🎁"
+        text="O dia de me presentear. Bom né?"
       />
       <Scene
         imgSrc={img("comida_detalhe.png")}
@@ -306,18 +306,18 @@ export default function App() {
       />
       <Scene
         imgSrc={img("sem_presente.png")}
-        text="Sem presente, sem comida 😐"
+        text="Sem presente, sem comida"
       />
       <Scene
         imgSrc={img("brincadeira.png")}
-        text="Brincadeira 😂😂😂"
+        text="Brincadeira"
         shake
       />
       <Scene
         imgSrc={img("me_confirma.png")}
         text=""
         textTop="Você vem na minha festa?"
-        textBottom="09/05/2026 🎂"
+        textBottom="09/05/2026"
       />
 
       {!submitted ? (
