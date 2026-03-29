@@ -248,8 +248,8 @@ function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => v
   const simTexts = [
     "SABIA QUE VOCÊ NÃO RESISTIA",
     "Te espero dia 09/05/2026!",
-    "Horário: 16h",
-    "Endereço: [SEU ENDEREÇO]",
+    "Horário: 19h",
+    "Endereço: R. Vanderli Rosa Gomes, 125 - Shopping Park",
     "Chega na hora tá?",
   ];
 
