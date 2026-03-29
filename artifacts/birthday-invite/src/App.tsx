@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -12,7 +12,6 @@ const FORM_URL =
 function useInView(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -28,8 +27,127 @@ function useInView(threshold = 0.2) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
   return { ref, visible };
+}
+
+function TypewriterText({
+  text,
+  active,
+  className,
+  style,
+}: {
+  text: string;
+  active: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    if (!active || !text) return;
+    setDisplayed("");
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) clearInterval(timer);
+    }, 40);
+    return () => clearInterval(timer);
+  }, [active, text]);
+  if (!active && !displayed) return null;
+  return (
+    <p className={className} style={style}>
+      {displayed}
+    </p>
+  );
+}
+
+const DECOR_ITEMS = [
+  { content: "✦", left: "2%",  top: "5%",   size: 14, color: "#FFB3C6" },
+  { content: "●", left: "6%",  top: "18%",  size: 8,  color: "#FFD6A5" },
+  { content: "✦", left: "3%",  top: "33%",  size: 16, color: "#C7B8EA" },
+  { content: "●", left: "5%",  top: "50%",  size: 10, color: "#FFB3C6" },
+  { content: "✦", left: "2%",  top: "67%",  size: 12, color: "#FFD6A5" },
+  { content: "●", left: "7%",  top: "82%",  size: 8,  color: "#C7B8EA" },
+  { content: "✦", left: "4%",  top: "93%",  size: 14, color: "#FFB3C6" },
+  { content: "✦", left: "91%", top: "8%",   size: 16, color: "#FFD6A5" },
+  { content: "●", left: "94%", top: "22%",  size: 10, color: "#FFB3C6" },
+  { content: "✦", left: "92%", top: "40%",  size: 12, color: "#C7B8EA" },
+  { content: "●", left: "95%", top: "58%",  size: 8,  color: "#FFD6A5" },
+  { content: "✦", left: "90%", top: "74%",  size: 14, color: "#FFB3C6" },
+  { content: "●", left: "93%", top: "90%",  size: 10, color: "#C7B8EA" },
+  { content: "✦", left: "20%", top: "1%",   size: 10, color: "#FFD6A5" },
+  { content: "●", left: "50%", top: "0.8%", size: 8,  color: "#FFB3C6" },
+  { content: "✦", left: "76%", top: "2%",   size: 12, color: "#C7B8EA" },
+  { content: "●", left: "30%", top: "98%",  size: 8,  color: "#FFD6A5" },
+  { content: "✦", left: "65%", top: "97%",  size: 12, color: "#FFB3C6" },
+];
+
+function DecorativeElements() {
+  return (
+    <>
+      {DECOR_ITEMS.map((el, i) => (
+        <span
+          key={i}
+          style={{
+            position: "fixed",
+            left: el.left,
+            top: el.top,
+            fontSize: el.size,
+            color: el.color,
+            opacity: 0.3,
+            pointerEvents: "none",
+            zIndex: 0,
+            userSelect: "none",
+          }}
+        >
+          {el.content}
+        </span>
+      ))}
+    </>
+  );
+}
+
+const CONFETTI_COLORS = ["#FFB3C6", "#FFD6A5", "#B5EAD7", "#C7B8EA"];
+
+function PermanentConfetti() {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        left: Math.round(Math.random() * 98),
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        duration: +(6 + Math.random() * 6).toFixed(2),
+        delay: +(-Math.random() * 12).toFixed(2),
+      })),
+    []
+  );
+
+  return (
+    <>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "fixed",
+            left: `${p.left}%`,
+            top: "-10px",
+            width: 6,
+            height: 10,
+            borderRadius: 2,
+            backgroundColor: p.color,
+            opacity: 0.5,
+            pointerEvents: "none",
+            zIndex: 0,
+            animationName: "permanentConfettiFall",
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite",
+          }}
+        />
+      ))}
+    </>
+  );
 }
 
 interface SceneProps {
@@ -42,13 +160,20 @@ interface SceneProps {
 
 function Scene({ imgSrc, text, textTop, textBottom, shake }: SceneProps) {
   const { ref, visible } = useInView();
-  const [doShake, setDoShake] = useState(false);
+  const [animClass, setAnimClass] = useState("");
 
   useEffect(() => {
-    if (visible && shake) {
-      setDoShake(true);
-      const t = setTimeout(() => setDoShake(false), 700);
-      return () => clearTimeout(t);
+    if (!visible) return;
+    setAnimClass("swing-in");
+    let t1: ReturnType<typeof setTimeout>;
+    let t2: ReturnType<typeof setTimeout>;
+    if (shake) {
+      t1 = setTimeout(() => setAnimClass("shake"), 650);
+      t2 = setTimeout(() => setAnimClass("breathe"), 1400);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    } else {
+      t1 = setTimeout(() => setAnimClass("breathe"), 650);
+      return () => clearTimeout(t1);
     }
   }, [visible, shake]);
 
@@ -62,23 +187,36 @@ function Scene({ imgSrc, text, textTop, textBottom, shake }: SceneProps) {
         transition: "opacity 0.6s ease, transform 0.6s ease",
       }}
     >
-      {textTop && <p className="scene-text">{textTop}</p>}
-      <img
-        src={imgSrc}
-        alt=""
-        className={doShake ? "shake" : ""}
-        style={{
-          maxWidth: 320,
-          width: "100%",
-          display: "block",
-          margin: "0 auto",
-        }}
-      />
-      {text && <p className="scene-text">{text}</p>}
+      {textTop && (
+        <TypewriterText text={textTop} active={visible} className="scene-text" />
+      )}
+
+      <div className={`img-wrapper ${animClass}`}>
+        <div className="img-circle" />
+        <img
+          src={imgSrc}
+          alt=""
+          style={{
+            maxWidth: 320,
+            width: "100%",
+            display: "block",
+            margin: "0 auto",
+            position: "relative",
+            zIndex: 1,
+          }}
+        />
+      </div>
+
+      {text && (
+        <TypewriterText text={text} active={visible} className="scene-text" />
+      )}
       {textBottom && (
-        <p className="scene-text" style={{ fontSize: "2.8rem", fontWeight: "bold" }}>
-          {textBottom}
-        </p>
+        <TypewriterText
+          text={textBottom}
+          active={visible}
+          className="scene-text"
+          style={{ fontSize: "2.8rem" }}
+        />
       )}
     </div>
   );
@@ -108,6 +246,7 @@ type Answer = "sim" | "nao" | null;
 function ResponseSection({ answer }: { answer: Answer }) {
   const [texts, setTexts] = useState<string[]>([]);
   const [showClose, setShowClose] = useState(false);
+  const [animClass, setAnimClass] = useState("");
 
   const simTexts = [
     "SABIA QUE VOCÊ NÃO RESISTIA",
@@ -129,8 +268,10 @@ function ResponseSection({ answer }: { answer: Answer }) {
 
   useEffect(() => {
     if (answer === "sim") launchConfetti();
+    setAnimClass("swing-in");
+    const tb = setTimeout(() => setAnimClass("breathe"), 650);
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [tb];
     allTexts.forEach((_, i) => {
       timers.push(
         setTimeout(() => {
@@ -145,7 +286,7 @@ function ResponseSection({ answer }: { answer: Answer }) {
   }, [answer]);
 
   const textStyles: Record<number, React.CSSProperties> = {
-    0: { fontSize: "2rem", fontWeight: "bold" },
+    0: { fontSize: "2rem" },
     1: { fontSize: "1.5rem" },
     2: { fontSize: "1.3rem" },
     3: { fontSize: "1.3rem" },
@@ -154,11 +295,21 @@ function ResponseSection({ answer }: { answer: Answer }) {
 
   return (
     <div className="scene" style={{ opacity: 1, transform: "none" }}>
-      <img
-        src={img(answer === "sim" ? "resposta_sim.png" : "resposta_nao.png")}
-        alt=""
-        style={{ maxWidth: 300, width: "100%", display: "block", margin: "0 auto" }}
-      />
+      <div className={`img-wrapper ${animClass}`}>
+        <div className="img-circle" />
+        <img
+          src={img(answer === "sim" ? "resposta_sim.png" : "resposta_nao.png")}
+          alt=""
+          style={{
+            maxWidth: 300,
+            width: "100%",
+            display: "block",
+            margin: "0 auto",
+            position: "relative",
+            zIndex: 1,
+          }}
+        />
+      </div>
       {texts.map((t, i) => (
         <p
           key={i}
@@ -181,11 +332,7 @@ function ResponseSection({ answer }: { answer: Answer }) {
   );
 }
 
-function RSVPSection({
-  onSubmit,
-}: {
-  onSubmit: (answer: Answer) => void;
-}) {
+function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
   const { ref, visible } = useInView();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -196,20 +343,13 @@ function RSVPSection({
       return;
     }
     setError("");
-
     const body = new URLSearchParams({
       "entry.1964878530": name.trim(),
       "entry.83163696": answer === "sim" ? "Sim, vou!" : "Não vou conseguir...",
     });
-
     try {
-      await fetch(FORM_URL, {
-        method: "POST",
-        mode: "no-cors",
-        body,
-      });
+      await fetch(FORM_URL, { method: "POST", mode: "no-cors", body });
     } catch {}
-
     onSubmit(answer);
   }
 
@@ -248,21 +388,23 @@ function RSVPSection({
         }}
       />
       {error && (
-        <p style={{ color: "red", fontFamily: "Boogaloo, sans-serif", fontSize: "1rem", marginBottom: 12 }}>
+        <p
+          style={{
+            color: "red",
+            fontFamily: "'Chango', cursive",
+            fontSize: "1rem",
+            marginBottom: 12,
+            textAlign: "center",
+          }}
+        >
           {error}
         </p>
       )}
       <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-        <button
-          className="btn btn-primary"
-          onClick={() => handleClick("sim")}
-        >
+        <button className="btn btn-primary" onClick={() => handleClick("sim")}>
           SIM 🎉
         </button>
-        <button
-          className="btn btn-outline"
-          onClick={() => handleClick("nao")}
-        >
+        <button className="btn btn-outline" onClick={() => handleClick("nao")}>
           Não 😢
         </button>
       </div>
@@ -283,50 +425,49 @@ export default function App() {
   }
 
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        maxWidth: 600,
-        margin: "0 auto",
-        fontFamily: "'Chango', cursive",
-      }}
-    >
-      <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre" />
-      <Scene
-        imgSrc={img("ta_chegando.png")}
-        text="Tá chegando o melhor dia do ano pra você..."
-      />
-      <Scene
-        imgSrc={img("presentear.png")}
-        text="O dia de me presentear. Bom né?"
-      />
-      <Scene
-        imgSrc={img("comida_detalhe.png")}
-        text="Vai ter comida também... mas isso é detalhe."
-      />
-      <Scene
-        imgSrc={img("sem_presente.png")}
-        text="Sem presente, sem comida"
-      />
-      <Scene
-        imgSrc={img("brincadeira.png")}
-        text="Brincadeira"
-        shake
-      />
-      <Scene
-        imgSrc={img("me_confirma.png")}
-        text=""
-        textTop="Você vem na minha festa?"
-        textBottom="09/05/2026"
-      />
+    <>
+      <DecorativeElements />
+      <PermanentConfetti />
+      <div
+        style={{
+          background: "#ffffff",
+          maxWidth: 600,
+          margin: "0 auto",
+          fontFamily: "'Chango', cursive",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre" />
+        <Scene
+          imgSrc={img("ta_chegando.png")}
+          text="Tá chegando o melhor dia do ano pra você..."
+        />
+        <Scene
+          imgSrc={img("presentear.png")}
+          text="O dia de me presentear. Bom né?"
+        />
+        <Scene
+          imgSrc={img("comida_detalhe.png")}
+          text="Vai ter comida também... mas isso é detalhe."
+        />
+        <Scene imgSrc={img("sem_presente.png")} text="Sem presente, sem comida" />
+        <Scene imgSrc={img("brincadeira.png")} text="Brincadeira" shake />
+        <Scene
+          imgSrc={img("me_confirma.png")}
+          text=""
+          textTop="Você vem na minha festa?"
+          textBottom="09/05/2026"
+        />
 
-      {!submitted ? (
-        <RSVPSection onSubmit={handleSubmit} />
-      ) : (
-        <div id="response-section">
-          <ResponseSection answer={answer} />
-        </div>
-      )}
-    </div>
+        {!submitted ? (
+          <RSVPSection onSubmit={handleSubmit} />
+        ) : (
+          <div id="response-section">
+            <ResponseSection answer={answer} />
+          </div>
+        )}
+      </div>
+    </>
   );
 }
