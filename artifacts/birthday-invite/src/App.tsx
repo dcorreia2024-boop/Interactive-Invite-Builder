@@ -355,13 +355,22 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
   const { ref, visible } = useInView();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [step, setStep] = useState<"name" | "answer">("name");
 
-  async function handleClick(answer: "sim" | "nao") {
+  function handleConfirmName() {
     if (!name.trim()) {
       setError("Ei, esqueceu seu nome!");
       return;
     }
     setError("");
+    setStep("answer");
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") handleConfirmName();
+  }
+
+  async function handleClick(answer: "sim" | "nao") {
     const body = new URLSearchParams({
       "entry.1964878530": name.trim(),
       "entry.83163696": answer === "sim" ? "Sim, vou!" : "Não vou conseguir...",
@@ -388,45 +397,70 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
         transition: "opacity 0.6s ease, transform 0.6s ease",
       }}
     >
-      <input
-        type="text"
-        placeholder="Seu nome..."
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{
-          border: "2px solid #1a1a1a",
-          borderRadius: 12,
-          padding: "14px 20px",
-          fontSize: "1.2rem",
-          fontFamily: "'Chango', cursive",
-          width: "100%",
-          maxWidth: 360,
-          marginBottom: 8,
-          outline: "none",
-          boxSizing: "border-box",
-        }}
-      />
-      {error && (
-        <p
-          style={{
-            color: "red",
-            fontFamily: "'Chango', cursive",
-            fontSize: "1rem",
-            marginBottom: 12,
-            textAlign: "center",
-          }}
-        >
-          {error}
-        </p>
+      {step === "name" ? (
+        <>
+          <input
+            type="text"
+            placeholder="Seu nome..."
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{
+              border: "2px solid #1a1a1a",
+              borderRadius: 12,
+              padding: "14px 20px",
+              fontSize: "1.2rem",
+              fontFamily: "'Chango', cursive",
+              width: "100%",
+              maxWidth: 360,
+              marginBottom: 8,
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          {error && (
+            <p
+              style={{
+                color: "red",
+                fontFamily: "'Chango', cursive",
+                fontSize: "1rem",
+                marginBottom: 12,
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </p>
+          )}
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 12 }}
+            onClick={handleConfirmName}
+          >
+            Confirmar
+          </button>
+        </>
+      ) : (
+        <>
+          <p
+            style={{
+              fontFamily: "'Chango', cursive",
+              fontSize: "1.6rem",
+              textAlign: "center",
+              marginBottom: 32,
+            }}
+          >
+            Você vai comparecer, {name.trim()}?
+          </p>
+          <div style={{ display: "flex", gap: 16 }}>
+            <button className="btn btn-primary" onClick={() => handleClick("sim")}>
+              SIM 🎉
+            </button>
+            <button className="btn btn-outline" onClick={() => handleClick("nao")}>
+              Não 😢
+            </button>
+          </div>
+        </>
       )}
-      <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-        <button className="btn btn-primary" onClick={() => handleClick("sim")}>
-          SIM 🎉
-        </button>
-        <button className="btn btn-outline" onClick={() => handleClick("nao")}>
-          Não 😢
-        </button>
-      </div>
     </div>
   );
 }
