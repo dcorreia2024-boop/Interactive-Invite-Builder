@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -446,6 +446,61 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
   );
 }
 
+function ScrollHint() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY > 80) setVisible(false);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 28,
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 4,
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.5s ease",
+        pointerEvents: "none",
+        zIndex: 50,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Chango', cursive",
+          fontSize: "0.75rem",
+          color: "#aaa",
+          letterSpacing: "0.05em",
+        }}
+      >
+        role para baixo
+      </span>
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#bbb"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="scroll-arrow"
+      >
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
+  );
+}
+
 export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [answer, setAnswer] = useState<Answer>(null);
@@ -467,6 +522,7 @@ export default function App() {
     <>
       <DecorativeElements />
       <PermanentConfetti />
+      <ScrollHint />
       <div
         style={{
           background: "#ffffff",
