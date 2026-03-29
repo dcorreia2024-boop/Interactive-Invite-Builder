@@ -112,11 +112,11 @@ const CONFETTI_COLORS = ["#FFB3C6", "#FFD6A5", "#B5EAD7", "#C7B8EA"];
 function PermanentConfetti() {
   const particles = useMemo(
     () =>
-      Array.from({ length: 30 }, (_, i) => ({
+      Array.from({ length: 14 }, (_, i) => ({
         id: i,
-        left: Math.round(Math.random() * 98),
-        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-        duration: +(6 + Math.random() * 6).toFixed(2),
+        left: Math.round((i / 14) * 98 + Math.random() * 6),
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        duration: +(7 + Math.random() * 5).toFixed(2),
         delay: +(-Math.random() * 12).toFixed(2),
       })),
     []
@@ -135,9 +135,10 @@ function PermanentConfetti() {
             height: 10,
             borderRadius: 2,
             backgroundColor: p.color,
-            opacity: 0.5,
+            opacity: 0.45,
             pointerEvents: "none",
             zIndex: 0,
+            willChange: "transform",
             animationName: "permanentConfettiFall",
             animationDuration: `${p.duration}s`,
             animationDelay: `${p.delay}s`,
