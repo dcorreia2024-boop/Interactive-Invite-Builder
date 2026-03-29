@@ -1,0 +1,19 @@
+Crie um convite de aniversário interativo em HTML/CSS/JS puro (tudo em um arquivo index.html). Fundo branco #ffffff, fonte "Boogaloo" do Google Fonts tamanho grande, layout coluna única centralizado max-width 600px margin auto.
+A página funciona em scroll. Cada cena tem min-height 100vh, display flex, flex-direction column, align-items center, justify-content center, padding 40px 20px. Todas as cenas começam invisíveis (opacity 0, transform translateY 40px) e entram com transição suave via IntersectionObserver ao rolar.
+Tenho 9 imagens que vou fazer upload com esses nomes exatos: eai_pobre.png, ta_chegando.png, presentear.png, comida_detalhe.png, sem_presente.png, brincadeira.png, me_confirma.png, resposta_sim.png, resposta_nao.png. Cada imagem deve ter max-width 320px, width 100%, display block, margin 0 auto.
+Monte 7 cenas nessa ordem, imagem em cima e texto embaixo em fonte Boogaloo 2.2rem cor #1a1a1a, text-align center:
+
+eai_pobre.png — "E aí, pobre 👀"
+ta_chegando.png — "Tá chegando o melhor dia do ano pra você..."
+presentear.png — "O dia de me presentear. Bom né? 🎁"
+comida_detalhe.png — "Vai ter comida também... mas isso é detalhe."
+sem_presente.png — "Sem presente, sem comida 😐"
+brincadeira.png — "Brincadeira 😂😂😂" (ao entrar no viewport adiciona animação CSS shake por 0.6s)
+me_confirma.png — texto acima "Você vem na minha festa?" + texto abaixo "09/05/2026 🎂" em 2.8rem bold
+
+Após cena 7, seção RSVP centralizada com: input estiloso (border 2px solid #1a1a1a, border-radius 12px, padding 14px 20px, font-size 1.2rem, font-family Boogaloo, width 100%, max-width 360px, margin-bottom 20px) com placeholder "Seu nome...". Abaixo dois botões grandes lado a lado (flex gap 16px), border 2px solid #1a1a1a, border-radius 12px, padding 16px 32px, font-size 1.3rem, font-family Boogaloo, cursor pointer, transition 0.2s. Botão SIM fundo #1a1a1a cor branca. Botão NÃO fundo branco cor #1a1a1a. Hover inverte as cores.
+Ao clicar em qualquer botão, valida se o nome foi preenchido. Se não, exibe mensagem "Ei, esqueceu seu nome! 😅" em vermelho abaixo do input. Se sim, submete via fetch mode no-cors para https://docs.google.com/forms/d/e/1FAIpQLSfmf-U9xVFhQXKJNNHFl8WzJcPSazfr5ELVyx6j0D_amjWPcQ/formResponse com body URLSearchParams contendo entry.1964878530 igual ao nome e entry.83163696 igual a "Sim, vou!" ou "Não vou conseguir..." conforme o botão clicado.
+Após submissão: esconde a seção RSVP e mostra a seção de resposta com fade in.
+Seção resposta SIM: imagem resposta_sim.png centralizada max-width 300px, depois textos aparecem um por um com setTimeout 600ms: "SABIA QUE VOCÊ NÃO RESISTIA 🎉" em 2rem bold, "Te espero dia 09/05/2026!" em 1.5rem, "⏰ Horário: 16h" em 1.3rem, "📍 Endereço: [SEU ENDEREÇO]" em 1.3rem, "Chega na hora tá? 😂" em 1.1rem. Ao aparecer lança 40 emojis 🎉🎂🎈 em spans position fixed com left e top aleatórios animados caindo por 3s depois removidos do DOM.
+Seção resposta NÃO: imagem resposta_nao.png centralizada max-width 300px, textos aparecem com setTimeout 700ms: "Não vem né..." em 2rem, "Bom que sobra mais pra mim 😏" em 1.5rem, "Mas o presente tu pode mandar ainda" em 1.3rem, "Tu sabe né? 🎁" em 1.3rem.
+Independente da resposta, após todos os textos aparecerem exibe botão "Fechar 👋" centralizado com mesmo estilo dos botões anteriores que ao clicar faz window.scrollTo top 0 com behavior smooth.
