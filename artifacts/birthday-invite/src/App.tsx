@@ -156,11 +156,9 @@ interface SceneProps {
   textTop?: string;
   textBottom?: string;
   shake?: boolean;
-  blobPath: string;
-  blobColor: string;
 }
 
-function Scene({ imgSrc, text, textTop, textBottom, shake, blobPath, blobColor }: SceneProps) {
+function Scene({ imgSrc, text, textTop, textBottom, shake }: SceneProps) {
   const { ref, visible } = useInView();
   const [animClass, setAnimClass] = useState("");
 
@@ -194,22 +192,6 @@ function Scene({ imgSrc, text, textTop, textBottom, shake, blobPath, blobColor }
       )}
 
       <div className={`img-wrapper ${animClass}`}>
-        <svg
-          width="300"
-          height="300"
-          viewBox="-150 -150 300 300"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 0,
-            opacity: 0.85,
-            pointerEvents: "none",
-          }}
-        >
-          <path d={blobPath} fill={blobColor} />
-        </svg>
         <img
           src={imgSrc}
           alt=""
@@ -218,9 +200,6 @@ function Scene({ imgSrc, text, textTop, textBottom, shake, blobPath, blobColor }
             width: "100%",
             display: "block",
             margin: "0 auto",
-            position: "relative",
-            zIndex: 1,
-            mixBlendMode: "multiply",
           }}
         />
       </div>
@@ -498,50 +477,26 @@ export default function App() {
           zIndex: 1,
         }}
       >
-        <Scene
-          imgSrc={img("eai_pobre.png")}
-          text="E aí, pobre"
-          blobPath="M60,-70C75,-50,80,-25,78,5C76,35,65,70,45,85C25,100,-5,95,-30,80C-55,65,-75,40,-78,12C-81,-16,-67,-47,-48,-68C-29,-89,0,-100,30,-95C60,-90,45,-90,60,-70Z"
-          blobColor="#FFE8F0"
-        />
+        <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre" />
         <Scene
           imgSrc={img("ta_chegando.png")}
           text="Tá chegando o melhor dia do ano pra você..."
-          blobPath="M55,-75C70,-55,82,-30,78,0C74,30,62,65,38,82C14,99,-18,98,-44,82C-70,66,-88,35,-88,4C-88,-27,-70,-58,-48,-76C-26,-94,0,-102,28,-96C56,-90,40,-95,55,-75Z"
-          blobColor="#FFF3E0"
         />
         <Scene
           imgSrc={img("presentear.png")}
           text="O dia de me presentear. Bom né?"
-          blobPath="M70,-60C82,-38,85,-10,78,18C71,46,54,74,28,88C2,102,-32,102,-58,82C-84,62,-100,22,-96,-14C-92,-50,-78,-82,-52,-94C-26,-106,10,-98,40,-86C70,-74,58,-82,70,-60Z"
-          blobColor="#E8F5E9"
         />
         <Scene
           imgSrc={img("comida_detalhe.png")}
           text="Vai ter comida também... mas isso é detalhe."
-          blobPath="M50,-80C68,-62,85,-38,88,-10C91,18,80,50,58,72C36,94,4,106,-28,100C-60,94,-92,70,-104,38C-116,6,-108,-34,-88,-62C-68,-90,-36,-106,-4,-106C28,-106,32,-98,50,-80Z"
-          blobColor="#EDE7F6"
         />
-        <Scene
-          imgSrc={img("sem_presente.png")}
-          text="Sem presente, sem comida"
-          blobPath="M62,-72C78,-52,88,-26,84,4C80,34,62,68,34,84C6,100,-30,98,-58,80C-86,62,-106,28,-106,-8C-106,-44,-86,-82,-58,-96C-30,-110,6,-100,36,-90C66,-80,46,-92,62,-72Z"
-          blobColor="#E3F2FD"
-        />
-        <Scene
-          imgSrc={img("brincadeira.png")}
-          text="Brincadeira"
-          shake
-          blobPath="M44,-82C60,-66,78,-44,84,-18C90,8,84,38,68,62C52,86,26,104,-4,106C-34,108,-68,94,-88,68C-108,42,-114,4,-104,-30C-94,-64,-68,-94,-38,-104C-8,-114,28,-100,44,-82Z"
-          blobColor="#FCE4EC"
-        />
+        <Scene imgSrc={img("sem_presente.png")} text="Sem presente, sem comida" />
+        <Scene imgSrc={img("brincadeira.png")} text="Brincadeira" shake />
         <Scene
           imgSrc={img("me_confirma.png")}
           text=""
           textTop="Você vem na minha festa?"
           textBottom="09/05/2026"
-          blobPath="M58,-68C74,-46,84,-20,80,8C76,36,58,66,32,84C6,102,-28,108,-56,94C-84,80,-106,46,-108,12C-110,-22,-92,-56,-68,-78C-44,-100,-14,-110,18,-106C50,-102,42,-90,58,-68Z"
-          blobColor="#F3E5F5"
         />
 
         {!submitted ? (
