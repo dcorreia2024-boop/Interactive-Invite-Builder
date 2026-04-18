@@ -1,5 +1,5 @@
 {
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm --filter @workspace/birthday-invite run build",
   "outputDirectory": "artifacts/birthday-invite/dist/public",
   "framework": null,
