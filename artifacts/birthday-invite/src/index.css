@@ -12,9 +12,7 @@ html {
 }
 
 body {
-  /* 1. Degradê suave */
-  background: linear-gradient(180deg, #fff 0%, #fff0f5 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   font-family: 'Chango', cursive;
   color: #1a1a1a;
 }

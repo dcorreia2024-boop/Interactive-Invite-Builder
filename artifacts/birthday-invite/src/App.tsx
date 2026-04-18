@@ -296,7 +296,7 @@ function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => v
   };
 
   return (
-    <div className="scene" style={{ opacity: 1, transform: "none", minHeight: "auto", paddingBottom: 60 }}>
+    <div className="scene" style={{ opacity: 1, transform: "none", scrollSnapAlign: "center", paddingBottom: 60 }}>
       <div className={`img-wrapper ${animClass}`}>
         <div className="img-circle" />
         <img
