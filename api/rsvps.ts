@@ -1,5 +1,4 @@
-import { db, rsvpsTable } from "@workspace/db";
-import { desc } from "drizzle-orm";
+import { neon } from "@neondatabase/serverless";
 
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,6 +10,8 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  const sql = neon(process.env.DATABASE_URL!);
+
   // POST /api/rsvps — salvar confirmação
   if (req.method === "POST") {
     const { name, answer } = req.body ?? {};
@@ -19,11 +20,11 @@ export default async function handler(req: any, res: any) {
       return;
     }
     try {
-      const [rsvp] = await db
-        .insert(rsvpsTable)
-        .values({ name: String(name).trim(), answer: String(answer) })
-        .returning();
-      res.status(201).json(rsvp);
+      const rows = await sql(
+        `INSERT INTO rsvps (name, answer) VALUES ($1, $2) RETURNING *`,
+        [String(name).trim(), String(answer)]
+      );
+      res.status(201).json(rows[0]);
     } catch {
       res.status(500).json({ error: "Erro ao salvar confirmação" });
     }
@@ -33,13 +34,12 @@ export default async function handler(req: any, res: any) {
   // GET /api/rsvps — listar confirmações (admin)
   if (req.method === "GET") {
     try {
-      const rsvps = await db
-        .select()
-        .from(rsvpsTable)
-        .orderBy(desc(rsvpsTable.createdAt));
-      const sim = rsvps.filter((r: any) => r.answer === "sim").length;
-      const nao = rsvps.filter((r: any) => r.answer === "nao").length;
-      res.json({ total: rsvps.length, sim, nao, rsvps });
+      const rows = await sql(
+        `SELECT * FROM rsvps ORDER BY created_at DESC`
+      );
+      const sim = rows.filter((r: any) => r.answer === "sim").length;
+      const nao = rows.filter((r: any) => r.answer === "nao").length;
+      res.json({ total: rows.length, sim, nao, rsvps: rows });
     } catch {
       res.status(500).json({ error: "Erro ao buscar confirmações" });
     }
