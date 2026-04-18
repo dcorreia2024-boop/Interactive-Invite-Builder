@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convite — Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chango&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 1. Background com degradê suave */
+    html {
+      scroll-snap-type: y mandatory; /* 2. Scroll snap */
+    }
+
+    body {
+      background: linear-gradient(180deg, #fff 0%, #fff0f5 100%);
+      background-attachment: fixed;
+      font-family: 'Chango', cursive;
+      color: #1a1a1a;
+      overflow-x: hidden;
+    }
+
+    /* 1. Wrapper com sombra suave */
+    .wrapper {
+      background: transparent;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 60px rgba(255,100,150,0.08);
+      border-radius: 0;
+    }
+
+    /* 2. Cenas com 85vh + scroll-snap */
+    .scene {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      scroll-snap-align: center;
+    }
+
+    .scene.hidden {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .scene-text {
+      font-family: 'Chango', cursive;
+      font-size: 2.2rem;
+      color: #1a1a1a;
+      text-align: center;
+      margin-top: 24px;
+      line-height: 1.3;
+    }
+
+    /* ── Image wrapper ── */
+    .img-wrapper {
+      position: relative;
+      max-width: 320px;
+      width: 100%;
+      margin: 0 auto;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .img-circle {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background-color: #FFE8F0;
+      z-index: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .img-wrapper img {
+      max-width: 320px;
+      width: 100%;
+      display: block;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Animações ── */
+    @keyframes swingIn {
+      0%   { transform: rotate(-8deg); }
+      50%  { transform: rotate(8deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .swing-in { animation: swingIn 0.6s ease forwards; }
+
+    @keyframes breathe {
+      from { transform: scale(1); }
+      to   { transform: scale(1.04); }
+    }
+    .breathe { animation: breathe 3s ease-in-out alternate infinite; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 50%, 90% { transform: translateX(-8px) rotate(-2deg); }
+      30%, 70%      { transform: translateX(8px) rotate(2deg); }
+    }
+    .shake { animation: shake 0.6s ease; }
+
+    /* ── Typewriter cursor ── */
+    .typewriter::after {
+      content: '|';
+      animation: blink 0.7s step-end infinite;
+    }
+    .typewriter.done::after { display: none; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Botões ── */
+    .btn {
+      border: 2px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 16px 32px;
+      font-size: 1.3rem;
+      font-family: 'Chango', cursive;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      outline: none;
+    }
+    .btn:hover  { opacity: 0.85; transform: scale(1.03); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-primary { background: #1a1a1a; color: #fff; }
+    .btn-outline  { background: #fff;    color: #1a1a1a; }
+
+    /* 2. RSVP com scroll-snap */
+    #rsvp {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      scroll-snap-align: center;
+    }
+
+    #rsvp.hidden { opacity: 0; transform: translateY(40px); }
+
+    #rsvp input {
+      border: 2px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.2rem;
+      font-family: 'Chango', cursive;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    .error-msg {
+      color: red;
+      font-family: 'Chango', cursive;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    /* ── Resposta ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-text { animation: fadeInUp 0.5s ease forwards; }
+
+    /* 3. Card de evento */
+    .event-card {
+      background: #fff0f5;
+      border: 2px solid #FFB3C6;
+      border-radius: 16px;
+      padding: 20px 28px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .event-card-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-family: 'Chango', cursive;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      line-height: 1.4;
+    }
+
+    .event-card-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Confetti permanente ── */
+    @keyframes permanentConfettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0.5; }
+    }
+
+    /* ── Confetti burst ── */
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+    }
+
+    /* ── Decorativos fixos ── */
+    .decor, .confetti-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* ── Scroll hint ── */
+    #scroll-hint {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+      z-index: 50;
+      transition: opacity 0.5s ease;
+    }
+    #scroll-hint span {
+      font-family: 'Chango', cursive;
+      font-size: 0.75rem;
+      color: #aaa;
+      letter-spacing: 0.05em;
+    }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(6px); }
+    }
+    .scroll-arrow { animation: scrollBounce 1.2s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+
+<!-- Scroll hint -->
+<div id="scroll-hint">
+  <span>role para baixo</span>
+  <svg class="scroll-arrow" width="22" height="22" viewBox="0 0 24 24"
+       fill="none" stroke="#bbb" stroke-width="2.5"
+       stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+</div>
+
+<!-- Wrapper principal -->
+<div class="wrapper" id="main-content">
+
+  <!-- Cenas -->
+  <div class="scene hidden" data-text="E aí, pobre">
+    <div class="img-wrapper"><img src="eai_pobre.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <div class="scene hidden" data-text="Tá chegando o melhor dia do ano pra você...">
+    <div class="img-wrapper"><img src="ta_chegando.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <div class="scene hidden" data-text="O dia de me presentear. Bom né?">
+    <div class="img-wrapper"><img src="presentear.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <div class="scene hidden" data-text="Vai ter comida também... mas isso é detalhe.">
+    <div class="img-wrapper"><img src="comida_detalhe.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <div class="scene hidden" data-text="Sem presente, sem comida">
+    <div class="img-wrapper"><img src="sem_presente.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <!-- Cena shake + brincadeira -->
+  <div class="scene hidden" data-text="Brincadeira" data-shake="true">
+    <div class="img-wrapper"><img src="brincadeira.png" alt="" /></div>
+    <p class="scene-text"></p>
+  </div>
+
+  <!-- Cena com texto em cima e data embaixo -->
+  <div class="scene hidden" data-text-top="Você vem na minha festa?" data-text-bottom="09/05/2026">
+    <div class="img-wrapper"><img src="me_confirma.png" alt="" /></div>
+    <p class="scene-text scene-top"></p>
+    <p class="scene-text scene-bottom" style="font-size:2.8rem"></p>
+  </div>
+
+  <!-- RSVP -->
+  <div id="rsvp" class="hidden">
+    <div id="rsvp-name-step">
+      <input type="text" id="rsvp-name" placeholder="Seu nome..." maxlength="60" />
+      <p class="error-msg" id="rsvp-error" style="display:none">Ei, esqueceu seu nome!</p>
+      <button class="btn btn-primary" style="margin-top:12px" id="btn-confirm-name">Confirmar</button>
+    </div>
+
+    <div id="rsvp-answer-step" style="display:none; flex-direction:column; align-items:center">
+      <p class="scene-text" id="rsvp-question" style="margin-bottom:32px; margin-top:0"></p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-sim">SIM 🎉</button>
+        <button class="btn btn-outline" id="btn-nao">Não 😢</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resposta -->
+  <div id="response-section" style="display:none">
+    <div class="scene" style="opacity:1; transform:none; min-height:auto; padding-bottom:60px">
+      <div class="img-wrapper" id="resp-img-wrapper">
+        <div class="img-circle"></div>
+        <img id="resp-img" src="" alt="" style="max-width:300px; width:100%; display:block; margin:0 auto; position:relative; z-index:1;" />
+      </div>
+      <div id="resp-texts" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+      <button class="btn btn-outline fade-in-text" id="btn-close"
+              style="display:none; margin-top:32px">Fechar 👋</button>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+  /* ─────────────── Configurações ─────────────── */
+  const API_URL = "/api/rsvps";
+
+  /* ─────────────── Decorativos fixos ─────────────── */
+  const DECOR_ITEMS = [
+    { c:"✦", l:"2%",  t:"5%",   s:14, col:"#FFB3C6" },
+    { c:"●", l:"6%",  t:"18%",  s:8,  col:"#FFD6A5" },
+    { c:"✦", l:"3%",  t:"33%",  s:16, col:"#C7B8EA" },
+    { c:"●", l:"5%",  t:"50%",  s:10, col:"#FFB3C6" },
+    { c:"✦", l:"2%",  t:"67%",  s:12, col:"#FFD6A5" },
+    { c:"●", l:"7%",  t:"82%",  s:8,  col:"#C7B8EA" },
+    { c:"✦", l:"4%",  t:"93%",  s:14, col:"#FFB3C6" },
+    { c:"✦", l:"91%", t:"8%",   s:16, col:"#FFD6A5" },
+    { c:"●", l:"94%", t:"22%",  s:10, col:"#FFB3C6" },
+    { c:"✦", l:"92%", t:"40%",  s:12, col:"#C7B8EA" },
+    { c:"●", l:"95%", t:"58%",  s:8,  col:"#FFD6A5" },
+    { c:"✦", l:"90%", t:"74%",  s:14, col:"#FFB3C6" },
+    { c:"●", l:"93%", t:"90%",  s:10, col:"#C7B8EA" },
+    { c:"✦", l:"20%", t:"1%",   s:10, col:"#FFD6A5" },
+    { c:"●", l:"50%", t:"0.8%", s:8,  col:"#FFB3C6" },
+    { c:"✦", l:"76%", t:"2%",   s:12, col:"#C7B8EA" },
+    { c:"●", l:"30%", t:"98%",  s:8,  col:"#FFD6A5" },
+    { c:"✦", l:"65%", t:"97%",  s:12, col:"#FFB3C6" },
+  ];
+
+  DECOR_ITEMS.forEach(el => {
+    const span = document.createElement("span");
+    span.className = "decor";
+    span.textContent = el.c;
+    span.style.cssText = `left:${el.l}; top:${el.t}; font-size:${el.s}px; color:${el.col}; opacity:0.3;`;
+    document.body.appendChild(span);
+  });
+
+  /* ─────────────── Confetti permanente ─────────────── */
+  const CONF_COLORS = ["#FFB3C6","#FFD6A5","#B5EAD7","#C7B8EA"];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-particle";
+    const left = Math.round((i/14)*98 + Math.random()*6);
+    const dur  = (7 + Math.random()*5).toFixed(2);
+    const del  = (-Math.random()*12).toFixed(2);
+    p.style.cssText = `
+      left:${left}%; top:-10px; width:6px; height:10px;
+      border-radius:2px; background:${CONF_COLORS[i%4]};
+      opacity:0.45; will-change:transform;
+      animation: permanentConfettiFall ${dur}s ${del}s linear infinite;
+    `;
+    document.body.appendChild(p);
+  }
+
+  /* ─────────────── Scroll hint ─────────────── */
+  const hint = document.getElementById("scroll-hint");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 80) hint.style.opacity = "0";
+  }, { passive: true });
+
+  /* ─────────────── Typewriter ─────────────── */
+  function typewrite(el, text, cb) {
+    if (!text) { if (cb) cb(); return; }
+    el.textContent = "";
+    el.classList.add("typewriter");
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      el.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(t);
+        el.classList.remove("typewriter");
+        el.classList.add("done");
+        if (cb) cb();
+      }
+    }, 40);
+  }
+
+  /* ─────────────── IntersectionObserver para cenas ─────────────── */
+  const scenes = document.querySelectorAll(".scene.hidden");
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const scene   = entry.target;
+      const wrapper = scene.querySelector(".img-wrapper");
+      const isShake = scene.dataset.shake === "true";
+
+      scene.classList.remove("hidden");
+      wrapper.classList.add("swing-in");
+
+      if (isShake) {
+        setTimeout(() => { wrapper.classList.remove("swing-in"); wrapper.classList.add("shake"); }, 650);
+        setTimeout(() => { wrapper.classList.remove("shake"); wrapper.classList.add("breathe"); }, 1400);
+      } else {
+        setTimeout(() => { wrapper.classList.remove("swing-in"); wrapper.classList.add("breathe"); }, 650);
+      }
+
+      const topText = scene.dataset.textTop;
+      if (topText) {
+        const el = scene.querySelector(".scene-top");
+        if (el) typewrite(el, topText);
+      }
+
+      const mainText = scene.dataset.text;
+      if (mainText) {
+        const el = scene.querySelector(".scene-text:not(.scene-top):not(.scene-bottom)");
+        if (el) typewrite(el, mainText);
+      }
+
+      const botText = scene.dataset.textBottom;
+      if (botText) {
+        setTimeout(() => {
+          const el = scene.querySelector(".scene-bottom");
+          if (el) typewrite(el, botText);
+        }, 300);
+      }
+
+      observer.unobserve(scene);
+    });
+  }, { threshold: 0.2 });
+
+  scenes.forEach(s => observer.observe(s));
+
+  /* ─────────────── RSVP observer ─────────────── */
+  const rsvpEl = document.getElementById("rsvp");
+  const rsvpObs = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    rsvpEl.classList.remove("hidden");
+    rsvpObs.disconnect();
+  }, { threshold: 0.2 });
+  rsvpObs.observe(rsvpEl);
+
+  /* ─────────────── RSVP lógica ─────────────── */
+  let guestName = "";
+
+  document.getElementById("btn-confirm-name").addEventListener("click", confirmName);
+  document.getElementById("rsvp-name").addEventListener("keydown", e => {
+    if (e.key === "Enter") confirmName();
+  });
+
+  function confirmName() {
+    const input = document.getElementById("rsvp-name");
+    const err   = document.getElementById("rsvp-error");
+    if (!input.value.trim()) { err.style.display = "block"; return; }
+    err.style.display = "none";
+    guestName = input.value.trim();
+    document.getElementById("rsvp-name-step").style.display = "none";
+    const step2 = document.getElementById("rsvp-answer-step");
+    step2.style.display = "flex";
+    document.getElementById("rsvp-question").textContent = `Você vai comparecer, ${guestName}?`;
+  }
+
+  document.getElementById("btn-sim").addEventListener("click", () => handleAnswer("sim"));
+
+  /* 5. Botão NÃO dramático — shake antes de confirmar */
+  document.getElementById("btn-nao").addEventListener("click", () => {
+    const btnNao      = document.getElementById("btn-nao");
+    const answerStep  = document.getElementById("rsvp-answer-step");
+
+    btnNao.disabled = true;
+    answerStep.classList.add("shake");
+
+    setTimeout(() => {
+      answerStep.classList.remove("shake");
+      btnNao.disabled = false;
+      handleAnswer("nao");
+    }, 800);
+  });
+
+  async function handleAnswer(answer) {
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: guestName, answer }),
+      });
+    } catch {}
+    showResponse(answer);
+  }
+
+  /* ─────────────── Confetti burst ─────────────── */
+  function launchConfetti() {
+    const emojis = ["🎉","🎂","🎈"];
+    for (let i = 0; i < 40; i++) {
+      const span = document.createElement("span");
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      span.style.cssText = `
+        position:fixed; left:${Math.random()*100}vw; top:-40px;
+        font-size:${1.5+Math.random()}rem; pointer-events:none; z-index:9999;
+        animation: confettiFall ${2+Math.random()}s linear forwards;
+      `;
+      document.body.appendChild(span);
+      setTimeout(() => span.remove(), 3000);
+    }
+  }
+
+  /* ─────────────── Resposta ─────────────── */
+  const naoTexts = [
+    { t: "Não vem né...",                       s: "2rem"   },
+    { t: "Bom que sobra mais pra mim",          s: "1.5rem" },
+    { t: "Mas o presente tu pode mandar ainda", s: "1.3rem" },
+    { t: "Tu sabe né?",                         s: "1.2rem" },
+  ];
+
+  // Link do Google Calendar
+  const GCAL_URL =
+    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text=Anivers%C3%A1rio%20%F0%9F%8E%82" +
+    "&dates=20260509T190000%2F20260509T220000" +
+    "&location=R.%20Vanderli%20Rosa%20Gomes%2C%20125%20-%20Shopping%20Park";
+
+  function showResponse(answer) {
+    // Desativa scroll-snap temporariamente para scrollIntoView funcionar suavemente
+    document.documentElement.style.scrollSnapType = "none";
+
+    document.getElementById("rsvp").style.display = "none";
+    const section = document.getElementById("response-section");
+    section.style.display = "block";
+
+    // Reativa snap depois do scroll terminar
+    setTimeout(() => {
+      section.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        document.documentElement.style.scrollSnapType = "";
+      }, 800);
+    }, 50);
+
+    if (answer === "sim") {
+      launchConfetti();
+      // 6. Segundo burst quando as infos do evento aparecem
+      setTimeout(() => launchConfetti(), 2500);
+    }
+
+    document.getElementById("resp-img").src = answer === "sim" ? "resposta_sim.png" : "resposta_nao.png";
+
+    const imgWrapper = document.getElementById("resp-img-wrapper");
+    imgWrapper.classList.add("swing-in");
+    setTimeout(() => { imgWrapper.classList.remove("swing-in"); imgWrapper.classList.add("breathe"); }, 650);
+
+    const container = document.getElementById("resp-texts");
+    container.innerHTML = "";
+
+    if (answer === "sim") {
+      // ── Fluxo SIM ──
+      const delay = 600;
+
+      // Texto 0 — reação
+      setTimeout(() => {
+        const p = document.createElement("p");
+        p.className = "scene-text fade-in-text";
+        p.style.fontSize = "2rem";
+        p.textContent = "SABIA QUE VOCÊ NÃO RESISTIA";
+        container.appendChild(p);
+      }, delay);
+
+      // 3. Card de evento com data, horário e endereço dentro
+      setTimeout(() => {
+        const card = document.createElement("div");
+        card.className = "event-card fade-in-text";
+        card.innerHTML = `
+          <div class="event-card-row">
+            <span class="event-card-icon">📅</span>
+            <span>Te espero dia 09/05/2026!</span>
+          </div>
+          <div class="event-card-row">
+            <span class="event-card-icon">🕖</span>
+            <span>Horário: 19h</span>
+          </div>
+          <div class="event-card-row">
+            <span class="event-card-icon">📍</span>
+            <span>R. Vanderli Rosa Gomes, 125 - Shopping Park</span>
+          </div>
+        `;
+        container.appendChild(card);
+      }, delay * 2);
+
+      // Texto final — "Chega na hora tá?"
+      setTimeout(() => {
+        const p = document.createElement("p");
+        p.className = "scene-text fade-in-text";
+        p.style.fontSize = "1.1rem";
+        p.textContent = "Chega na hora tá?";
+        container.appendChild(p);
+      }, delay * 3);
+
+      // 4. Botão salvar na agenda
+      setTimeout(() => {
+        const btn = document.createElement("a");
+        btn.href = GCAL_URL;
+        btn.target = "_blank";
+        btn.rel = "noopener noreferrer";
+        btn.className = "btn btn-outline fade-in-text";
+        btn.style.cssText = "margin-top:20px; text-decoration:none; display:inline-block;";
+        btn.textContent = "📅 Salvar na agenda";
+        container.appendChild(btn);
+      }, delay * 4);
+
+      // Botão fechar
+      setTimeout(() => {
+        document.getElementById("btn-close").style.display = "inline-block";
+      }, delay * 5);
+
+    } else {
+      // ── Fluxo NÃO ──
+      const delay = 700;
+      naoTexts.forEach((item, i) => {
+        setTimeout(() => {
+          const p = document.createElement("p");
+          p.className = "scene-text fade-in-text";
+          p.style.fontSize = item.s;
+          p.textContent = item.t;
+          container.appendChild(p);
+        }, delay * (i + 1));
+      });
+
+      setTimeout(() => {
+        document.getElementById("btn-close").style.display = "inline-block";
+      }, delay * (naoTexts.length + 1));
+    }
+  }
+
+  document.getElementById("btn-close").addEventListener("click", () => {
+    location.reload();
+  });
+</script>
+</body>
+</html>

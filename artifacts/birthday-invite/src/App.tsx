@@ -8,6 +8,12 @@ function img(name: string) {
 
 const API_URL = "/api/rsvps";
 
+const GCAL_URL =
+  "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+  "&text=Anivers%C3%A1rio%20%F0%9F%8E%82" +
+  "&dates=20260509T190000%2F20260509T220000" +
+  "&location=R.%20Vanderli%20Rosa%20Gomes%2C%20125%20-%20Shopping%20Park";
+
 function useInView(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -241,57 +247,56 @@ function launchConfetti() {
 type Answer = "sim" | "nao" | null;
 
 function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => void }) {
-  const [texts, setTexts] = useState<string[]>([]);
-  const [showClose, setShowClose] = useState(false);
-  const [animClass, setAnimClass] = useState("");
+  const [showReaction, setShowReaction]     = useState(false);
+  const [showCard, setShowCard]             = useState(false);
+  const [showFinal, setShowFinal]           = useState(false);
+  const [showCalendar, setShowCalendar]     = useState(false);
+  const [showClose, setShowClose]           = useState(false);
+  const [naoTexts, setNaoTexts]             = useState<string[]>([]);
+  const [animClass, setAnimClass]           = useState("");
 
-  const simTexts = [
-    "SABIA QUE VOCÊ NÃO RESISTIA",
-    "Te espero dia 09/05/2026!",
-    "Horário: 19h",
-    "Endereço: R. Vanderli Rosa Gomes, 125 - Shopping Park",
-    "Chega na hora tá?",
-  ];
-
-  const naoTexts = [
+  const naoLines = [
     "Não vem né...",
     "Bom que sobra mais pra mim",
     "Mas o presente tu pode mandar ainda",
     "Tu sabe né?",
   ];
 
-  const allTexts = answer === "sim" ? simTexts : naoTexts;
-  const delay = answer === "sim" ? 600 : 700;
-
   useEffect(() => {
     if (answer === "sim") launchConfetti();
-    setAnimClass("swing-in");
-    const tb = setTimeout(() => setAnimClass("breathe"), 650);
 
-    const timers: ReturnType<typeof setTimeout>[] = [tb];
-    allTexts.forEach((_, i) => {
-      timers.push(
+    setAnimClass("swing-in");
+    setTimeout(() => setAnimClass("breathe"), 650);
+
+    if (answer === "sim") {
+      const delay = 600;
+      setTimeout(() => setShowReaction(true),  delay);
+      setTimeout(() => setShowCard(true),       delay * 2);
+      setTimeout(() => setShowFinal(true),      delay * 3);
+      setTimeout(() => setShowCalendar(true),   delay * 4);
+      setTimeout(() => setShowClose(true),      delay * 5);
+      // 6. Segundo burst de confetti
+      setTimeout(() => launchConfetti(),        2500);
+    } else {
+      const delay = 700;
+      naoLines.forEach((_, i) => {
         setTimeout(() => {
-          setTexts((prev) => [...prev, allTexts[i]]);
-        }, delay * (i + 1))
-      );
-    });
-    timers.push(
-      setTimeout(() => setShowClose(true), delay * (allTexts.length + 1))
-    );
-    return () => timers.forEach(clearTimeout);
+          setNaoTexts((prev) => [...prev, naoLines[i]]);
+        }, delay * (i + 1));
+      });
+      setTimeout(() => setShowClose(true), delay * (naoLines.length + 1));
+    }
   }, [answer]);
 
-  const textStyles: Record<number, React.CSSProperties> = {
+  const naoTextStyles: Record<number, React.CSSProperties> = {
     0: { fontSize: "2rem" },
     1: { fontSize: "1.5rem" },
     2: { fontSize: "1.3rem" },
-    3: { fontSize: "1.3rem" },
-    4: { fontSize: "1.1rem" },
+    3: { fontSize: "1.2rem" },
   };
 
   return (
-    <div className="scene" style={{ opacity: 1, transform: "none" }}>
+    <div className="scene" style={{ opacity: 1, transform: "none", minHeight: "auto", paddingBottom: 60 }}>
       <div className={`img-wrapper ${animClass}`}>
         <div className="img-circle" />
         <img
@@ -307,15 +312,67 @@ function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => v
           }}
         />
       </div>
-      {texts.map((t, i) => (
-        <p
-          key={i}
-          className="scene-text fade-in-text"
-          style={textStyles[i] || { fontSize: "1.2rem" }}
-        >
-          {t}
-        </p>
-      ))}
+
+      {/* ── SIM flow ── */}
+      {answer === "sim" && (
+        <>
+          {showReaction && (
+            <p className="scene-text fade-in-text" style={{ fontSize: "2rem" }}>
+              SABIA QUE VOCÊ NÃO RESISTIA
+            </p>
+          )}
+
+          {/* 3. Card de evento */}
+          {showCard && (
+            <div className="event-card fade-in-text">
+              <div className="event-card-row">
+                <span className="event-card-icon">📅</span>
+                <span>Te espero dia 09/05/2026!</span>
+              </div>
+              <div className="event-card-row">
+                <span className="event-card-icon">🕖</span>
+                <span>Horário: 19h</span>
+              </div>
+              <div className="event-card-row">
+                <span className="event-card-icon">📍</span>
+                <span>R. Vanderli Rosa Gomes, 125 - Shopping Park</span>
+              </div>
+            </div>
+          )}
+
+          {showFinal && (
+            <p className="scene-text fade-in-text" style={{ fontSize: "1.1rem" }}>
+              Chega na hora tá?
+            </p>
+          )}
+
+          {/* 4. Botão Google Calendar */}
+          {showCalendar && (
+            <a
+              href={GCAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline fade-in-text"
+              style={{ marginTop: 20, textDecoration: "none", display: "inline-block" }}
+            >
+              📅 Salvar na agenda
+            </a>
+          )}
+        </>
+      )}
+
+      {/* ── NÃO flow ── */}
+      {answer === "nao" &&
+        naoTexts.map((t, i) => (
+          <p
+            key={i}
+            className="scene-text fade-in-text"
+            style={naoTextStyles[i] || { fontSize: "1.2rem" }}
+          >
+            {t}
+          </p>
+        ))}
+
       {showClose && (
         <button
           className="btn btn-outline fade-in-text"
@@ -334,9 +391,11 @@ function ResponseSection({ answer, onReset }: { answer: Answer; onReset: () => v
 
 function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
   const { ref, visible } = useInView();
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [step, setStep] = useState<"name" | "answer">("name");
+  const [name, setName]       = useState("");
+  const [error, setError]     = useState("");
+  const [step, setStep]       = useState<"name" | "answer">("name");
+  const [shaking, setShaking] = useState(false);
+  const [naoDisabled, setNaoDisabled] = useState(false);
 
   function handleConfirmName() {
     if (!name.trim()) {
@@ -362,17 +421,29 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
     onSubmit(answer);
   }
 
+  // 5. Botão NÃO dramático — shake antes de confirmar
+  function handleNaoClick() {
+    setNaoDisabled(true);
+    setShaking(true);
+    setTimeout(() => {
+      setShaking(false);
+      setNaoDisabled(false);
+      handleClick("nao");
+    }, 800);
+  }
+
   return (
     <div
       ref={ref}
       id="rsvp"
       style={{
-        minHeight: "100vh",
+        minHeight: "85vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 20px",
+        scrollSnapAlign: "center",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(40px)",
         transition: "opacity 0.6s ease, transform 0.6s ease",
@@ -421,7 +492,11 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
           </button>
         </>
       ) : (
-        <>
+        // Wrap the answer step to apply shake
+        <div
+          className={shaking ? "shake" : ""}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        >
           <p
             style={{
               fontFamily: "'Chango', cursive",
@@ -436,11 +511,15 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
             <button className="btn btn-primary" onClick={() => handleClick("sim")}>
               SIM 🎉
             </button>
-            <button className="btn btn-outline" onClick={() => handleClick("nao")}>
+            <button
+              className="btn btn-outline"
+              onClick={handleNaoClick}
+              disabled={naoDisabled}
+            >
               Não 😢
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -508,8 +587,13 @@ export default function App() {
   function handleSubmit(ans: Answer) {
     setAnswer(ans);
     setSubmitted(true);
+    // Desativa scroll-snap temporariamente para o scrollIntoView funcionar
+    document.documentElement.style.scrollSnapType = "none";
     setTimeout(() => {
       document.getElementById("response-section")?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        document.documentElement.style.scrollSnapType = "";
+      }, 800);
     }, 100);
   }
 
@@ -525,12 +609,13 @@ export default function App() {
       <ScrollHint />
       <div
         style={{
-          background: "#ffffff",
+          background: "transparent",
           maxWidth: 600,
           margin: "0 auto",
           fontFamily: "'Chango', cursive",
           position: "relative",
           zIndex: 1,
+          boxShadow: "0 0 60px rgba(255,100,150,0.08)",
         }}
       >
         <Scene imgSrc={img("eai_pobre.png")} text="E aí, pobre" />
