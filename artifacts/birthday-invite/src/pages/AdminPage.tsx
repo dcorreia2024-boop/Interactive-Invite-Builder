@@ -129,13 +129,12 @@ export default function AdminPage() {
                     </div>
                     <span
                       style={{
-                        fontSize: "1.3rem",
+                        fontSize: "0.85rem",
                         background: r.answer === "sim" ? "#dcfce7" : "#fee2e2",
                         color: r.answer === "sim" ? "#16a34a" : "#dc2626",
                         borderRadius: 8,
                         padding: "4px 12px",
                         fontFamily: "'Chango', cursive",
-                        fontSize: "0.85rem",
                       }}
                     >
                       {r.answer === "sim" ? "Vai! 🎉" : "Não vai 😢"}
