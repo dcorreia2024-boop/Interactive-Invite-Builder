@@ -6,7 +6,7 @@ function img(name: string) {
   return `${BASE}${name}`;
 }
 
-const API_URL = "/api/rsvps";
+const API_URL = "https://convite--dcorreia2024.replit.app/api/rsvps";
 
 const GCAL_URL =
   "https://calendar.google.com/calendar/render?action=TEMPLATE" +
