@@ -6,7 +6,7 @@ function img(name: string) {
   return `${BASE}${name}`;
 }
 
-const API_URL = "https://convite--dcorreia2024.replit.app/api/rsvps";
+const API_URL = import.meta.env.VITE_API_URL ?? "/api/rsvps";
 
 const GCAL_URL =
   "https://calendar.google.com/calendar/render?action=TEMPLATE" +
