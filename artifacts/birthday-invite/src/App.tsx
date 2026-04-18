@@ -587,14 +587,12 @@ export default function App() {
   function handleSubmit(ans: Answer) {
     setAnswer(ans);
     setSubmitted(true);
-    // Desativa scroll-snap temporariamente para o scrollIntoView funcionar
-    document.documentElement.style.scrollSnapType = "none";
-    setTimeout(() => {
-      document.getElementById("response-section")?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => {
-        document.documentElement.style.scrollSnapType = "";
-      }, 800);
-    }, 100);
+    // Aguarda dois frames para o React montar o response-section antes de rolar
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById("response-section")?.scrollIntoView({ behavior: "smooth" });
+      });
+    });
   }
 
   function handleReset() {
