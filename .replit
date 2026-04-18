@@ -1,13 +1,8 @@
 modules = ["nodejs-24"]
 
+# Apenas o api-server como artifact — ele serve o frontend estático em produção
 [[artifacts]]
 id = "artifacts/api-server"
-
-[[artifacts]]
-id = "artifacts/birthday-invite"
-
-[[artifacts]]
-id = "artifacts/mockup-sandbox"
 
 [deployment]
 router = "application"
