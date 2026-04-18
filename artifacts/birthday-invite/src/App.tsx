@@ -6,8 +6,7 @@ function img(name: string) {
   return `${BASE}${name}`;
 }
 
-const FORM_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfmf-U9xVFhQXKJNNHFl8WzJcPSazfr5ELVyx6j0D_amjWPcQ/formResponse";
+const API_URL = "/api/rsvps";
 
 function useInView(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null);
@@ -353,12 +352,12 @@ function RSVPSection({ onSubmit }: { onSubmit: (answer: Answer) => void }) {
   }
 
   async function handleClick(answer: "sim" | "nao") {
-    const body = new URLSearchParams({
-      "entry.1964878530": name.trim(),
-      "entry.83163696": answer === "sim" ? "Sim, vou!" : "Não vou conseguir...",
-    });
     try {
-      await fetch(FORM_URL, { method: "POST", mode: "no-cors", body });
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), answer }),
+      });
     } catch {}
     onSubmit(answer);
   }
