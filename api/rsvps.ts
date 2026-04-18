@@ -1,27 +1,6 @@
-import { Pool } from "pg";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { db, rsvpsTable } from "@workspace/db";
 import { desc } from "drizzle-orm";
 
-// ── Schema (inline para evitar dependências de workspace no bundle) ──
-const rsvpsTable = pgTable("rsvps", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  answer: text("answer").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// ── Conexão reutilizada entre invocações ──
-let _db: ReturnType<typeof drizzle> | null = null;
-function getDb() {
-  if (!_db) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    _db = drizzle(pool);
-  }
-  return _db;
-}
-
-// ── Handler Vercel Serverless Function ──
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -31,8 +10,6 @@ export default async function handler(req: any, res: any) {
     res.status(200).end();
     return;
   }
-
-  const db = getDb();
 
   // POST /api/rsvps — salvar confirmação
   if (req.method === "POST") {
